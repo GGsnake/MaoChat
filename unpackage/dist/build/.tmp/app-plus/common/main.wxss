@@ -1,0 +1,24 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*每个页面公共css */
+page {
+	min-height: 100%;
+	background-color: #ede8ee;
+	height: 100%;
+	font-size: 32rpx;
+	line-height: 1.6;
+}
+

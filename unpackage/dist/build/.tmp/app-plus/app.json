@@ -1,0 +1,19 @@
+{
+  "pages": [
+    "pages/index/index"
+  ],
+  "subPackages": [],
+  "window": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "im-chat",
+    "navigationBarBackgroundColor": "#1482d1",
+    "backgroundColor": "#1482d1"
+  },
+  "usingComponents": {},
+  "splashscreen": {
+    "alwaysShowBeforeRender": true,
+    "autoclose": false
+  },
+  "appname": "在线聊天",
+  "compilerVersion": "1.9.8"
+}

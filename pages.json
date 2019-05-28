@@ -1,0 +1,32 @@
+{
+	"pages": [{
+			"path": "pages/login/login/login",
+			"style": {
+				"navigationBarTitleText": "猫聊"
+			}
+		}, {
+			"path": "pages/index/im-chat",
+			"style": {
+				"navigationBarTitleText": "猫聊"
+			}
+		}, {
+			"path": "pages/index/list",
+			"style": {
+				"navigationBarTitleText": "联系人列表"
+			}
+		}, //pages数组中第一项表示应用启动页
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "猫聊"
+			}
+		}
+
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "white",
+		"navigationBarTitleText": "im-chat",
+		"navigationBarBackgroundColor": "#1482d1",
+		"backgroundColor": "#1482d1"
+	}
+}
