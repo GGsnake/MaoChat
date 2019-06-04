@@ -4,7 +4,8 @@
 			<scroll-view id="scrollview" scroll-y="true" :style="{height:style.contentViewHeight+'px'}" :scroll-with-animation="true"
 			 :scroll-top="scrollTop">
 				<page-foot :name="name"></page-foot>
-				<message-show v-for="(message,index) in messages" :key="index" :message="message" :cid="index"></message-show>
+				<message-show v-for="(message,index) in messages" :key="index" :message="message" :cid="index" :bbd="aid" :fimg="img"
+				 :myimg="user.userName"></message-show>
 				<view id="bottom"></view>
 			</scroll-view>
 		</view>
@@ -28,12 +29,10 @@
 					footViewHeight: 90,
 					mitemHeight: 0,
 				},
+				user: {},
+				key: "",
 				scrollTop: 0,
-				messages: [{
-					user: 'home',
-					type: 'head', //input,content 
-					content: '你好!'
-				}]
+				messages: []
 			}
 		},
 		components: {
@@ -45,11 +44,33 @@
 			this.style.pageHeight = res.windowHeight;
 			this.style.contentViewHeight = res.windowHeight - uni.getSystemInfoSync().screenWidth / 750 * (100); //像素
 			var that = this;
+
 			let token = uni.getStorageSync('token');
+			//判断是否已登录
 			if (token) {
+				let user = uni.getStorageSync('user');
 				that.token = token;
-				
+				that.user = user;
+				//对方的Id
 				that.aid = option.uid;
+				that.img = option.img;
+
+				let uid = user.id;
+				//聊天缓存KEY
+				that.key = uid + 'chat:' + that.aid;
+				//
+
+				let chatData = uni.getStorageSync(that.key);
+				if (chatData) {
+					if (chatData.length != 0) {
+						that.messages = chatData;
+						//增量查询聊天记录
+						that.loadHistory(chatData[chatData.length - 1].lastId);
+					}
+				} else {
+					//本地无缓存全量加载聊天历史消息
+					that.loadHistory(null);
+				}
 			} else {
 				uni.navigateTo({
 					url: '../login/login/login',
@@ -58,19 +79,63 @@
 					complete: () => {}
 				});
 			}
-			// uni.connectSocket({
-			// 	// url: 'ws://192.168.0.109:8111/websocket', //仅为示例，并非真实接口地址。
-			// });
+			//开启socket
+			uni.connectSocket({
+				url: that.wss + '/websocket/' + that.token, //仅为示例，并非真实接口地址。
+			});
 			uni.onSocketOpen(function(res) {});
 			uni.onSocketMessage(function(res) {
-				// console.log('欢迎你用户id发出：' + res.data);
-				that.addMessage('home', res.data, false);
-				that.scrollToBottom();
+				//接受服务端回传消息
+				let use = JSON.parse(res.data);
+				let dev = "home";
+				if (that.user.id == use.sid) {
+					dev = "customer"
+				}
+				that.messages.push({
+					user: dev,
+					content: use.content,
+					hasSub: false,
+					subcontent: 'ccc',
+					aid: use.accid,
+					sid: use.sid
+				});
+				this.scrollToBottom();
 			});
 		},
 		methods: {
+			//加载离线消息
+			loadHistory: function(sendtime) {
+				let that = this;
+				uni.request({
+					url: that.base + '/Mes/history',
+					data: {
+						token: that.token,
+						uid: that.aid,
+						sendtime: sendtime
+					},
+					success: (res) => {
+						let chatData = res.data.data;
+						chatData.forEach(function(mes) {
+							let dev = "home";
+							if (that.user.id == mes.sid) {
+								dev = "customer";
+							}
+							that.messages.push({
+								user: dev,
+								lastId: mes.id,
+								content: mes.content,
+								hasSub: 0,
+								subcontent: mes.content,
+								aid: mes.accid,
+								sid: mes.sid
+							});
+						});
+						uni.setStorageSync(that.key, that.messages);
+						that.scrollToBottom();
+					}
+				});
+			},
 			getInputMessage: function(message) { //获取子组件的输入数据
-				// console.log(message);
 				this.addMessage('customer', message.content, false);
 				this.sendMessage(message.content);
 				// this.toRobot(message.content);
@@ -81,16 +146,30 @@
 					user: user,
 					content: content,
 					hasSub: hasSub,
-					subcontent: subcontent
+					subcontent: subcontent,
+					aid: that.aid,
+					sid: that.user.id
 				});
 			},
-			sendMessage: function(info) {
-				console.log(this.aid);
-				// var tk = this.aid;
-				// var aid = this.aid;
+			loadChat: function(info) {
 				var that = this;
 				uni.request({
-					url: 'http://192.168.0.109:8111/Mes/save',
+					url: that.base + '/Mes/save',
+					data: {
+						token: that.token,
+						accid: that.aid,
+						content: info,
+					},
+					success: (res) => {
+						that.scrollToBottom();
+					}
+				});
+			},
+
+			sendMessage: function(info) {
+				var that = this;
+				uni.request({
+					url: that.base + '/Mes/save',
 					data: {
 						token: that.token,
 						accid: that.aid,

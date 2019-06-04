@@ -1,0 +1,11 @@
+
+.inputArea {
+	padding: 20rpx 10%;
+}
+.inputClass {
+	border: 2rpx solid #ccc;
+	border-radius: 22rpx;
+	outline: 0;
+	padding: 8rpx 15rpx;
+}
+

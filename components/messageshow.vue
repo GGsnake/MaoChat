@@ -1,15 +1,15 @@
 <template>
 	<view class="m-item" :id="'message'+cid">
 		<view class="m-left">
-			<image class="head_icon" src="https://img-cdn-qiniu.dcloud.net.cn/uniapp/app/homeHL.png" v-if="message.user=='home'"></image>
+			<image class="head_icon" :src="fimg" v-if="bbd!=message.aid"></image>
 		</view>
 		<view class="m-content">
-			<view class="m-content-head" :class="{'m-content-head-right':message.user=='customer'}">
+			<view class="m-content-head" :class="{'m-content-head-right':bbd==message.aid}">
 				<view :class="'m-content-head-'+message.user">{{message.content}} </view>
 			</view>
 		</view>
 		<view class="m-right">
-			<image class="head_icon" src="https://img-cdn-qiniu.dcloud.net.cn/uniapp/app/customerHL.png" v-if="message.user=='customer'"></image>
+			<image class="head_icon" :src="myimg" v-if="bbd!=message.sid"></image>
 		</view>
 	</view>
 </template>
@@ -24,6 +24,16 @@
                 }
 			},
 			cid: {
+				type: [Number, String],
+				default: ''
+			},
+			bbd: {
+				type: [Number, String],
+				default: ''
+			},fimg: {
+				type: [Number, String],
+				default: ''
+			},myimg: {
 				type: [Number, String],
 				default: ''
 			}

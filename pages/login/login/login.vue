@@ -1,10 +1,10 @@
 <template>
 	<view style="padding-top: 40upx;">
 		<view class="inputArea">
-			<input v-model="loginPhone" placeholder="请输入手机" type="number" maxlength="11" class="inputClass" />
+			<input v-model="loginPhone" placeholder="请输入用户名" type="number" maxlength="11" class="inputClass" />
 		</view>
 		<view class="inputArea">
-			<input v-model="loginPassword" placeholder="请输入登录密码" type="password" class="inputClass" />
+			<input v-model="loginPassword" placeholder="请输入密码" type="password" class="inputClass" />
 		</view>
 		<view style="padding: 0 10%;">
 			<text style="color: red;">{{message}}</text>
@@ -13,7 +13,7 @@
 			<button style="border-radius:22px;" type="primary" @click="goLogin">登 录</button>
 		</view>
 		<view class="inputArea">
-			<text style="float:right;color:blue;" @click="openRegisterPage">>>注册>></text>
+			<text style="float:right;color:blue;">暂未开放注册</text>
 		</view>
 	</view>
 </template>
@@ -28,17 +28,19 @@
 			}
 		},
 		onLoad() {
-			let token = uni.getStorageSync('token');
+			let token = uni.getStorageSync('user');
 			if (token) {
-				uni.showLoading({
-					title: '有缓存。。。',
-					mask: false
-				});
-				uni.reLaunch({
-					url: '../../index/list'
+				// uni.showLoading({
+				// 	title: '存着',
+				// 	mask: false
+				// });
+				uni.navigateTo({
+					url: '../../index/list',
+					success: res => {},
+					fail: () => {},
+					complete: () => {}
 				});
 			}
-			
 		},
 		methods: {
 			openRegisterPage() {
@@ -50,34 +52,28 @@
 				});
 			},
 			goLogin() {
-				let loginPhone = this.loginPhone;
-				let loginPassword = this.loginPassword;
-				console.log(loginPhone);
 				// if (!(/^1(3|4|5|7|8|9)\d{9}$/.test(loginPhone))) {
 				// 	this.message = "手机号码有误，请重填";
 				// 	return false;
 				// }
+				let that = this;
+				let loginPhone = this.loginPhone;
+				let loginPassword = this.loginPassword;
 				// if (!loginPassword) {
 				// 	this.message = "密码为空";
 				// 	return false;
 				// }
 				uni.showLoading({
-					title: '登录中。。。',
+					title: '登录中',
 					mask: false
 				});
-				let token = uni.getStorageSync('token');
-				if (token) {
-					uni.showLoading({
-						title: '有缓存。。。',
-						mask: false
-					});
-				}
 				uni.request({
-					url: 'http://192.168.0.109:8111/user/login?uid=' + loginPhone, //此处使用了全局变量拼接url（main.js文件中），关于全局变量官方问答里有
-					method: 'GET', //get或post
-					// header: {
-						// 'token':
-					// },
+					url: that.base + '/user/login',
+					method: 'POST',
+					data: {
+						phone: loginPhone,
+						password: loginPassword
+					},
 					success: res => {
 						let data = res.data;
 						if (data.success === true) {
@@ -85,20 +81,24 @@
 								title: '登录成功',
 								mask: false
 							});
-							uni.setStorageSync('token', data.data);
+							uni.setStorageSync('user', data.data.user);
+							uni.setStorageSync('token', data.data.token);
 							uni.hideLoading();
 							uni.reLaunch({
-								url: '../../index/index'
+								url: '../../index/list'
 							});
 						} else {
-							// uni.removeStorageSync('userinfo');
-							this.message = data.error;
 							uni.hideLoading();
+							uni.showToast({
+								title: data.error.errMsg,
+								duration: 1111
+							});
 						}
 					},
-					fail: () => {
+					fail: (res) => {
+						
 						uni.hideLoading();
-						this.message = "网络连接失败";
+						
 					},
 					complete: () => {}
 				});

@@ -5,9 +5,14 @@
 				<block slot="backText">返回</block>
 				<block slot="content">列表</block>
 			</cu-custom>
+				<view class="cu-bar bg-white solid-bottom margin-top" @click="exit()">
+				<view class="action">
+					<text class="cuIcon-title text-orange "></text> 退出帐号
+				</view>
+			</view>
 			<view class="cu-bar bg-white solid-bottom margin-top">
 				<view class="action">
-					<text class="cuIcon-title text-orange "></text> 消息列表
+					<text class="cuIcon-title text-orange "></text> 好友列表
 				</view>
 			</view>
 			<view class="cu-list menu-avatar">
@@ -29,11 +34,7 @@
 					</view>
 				</view>
 			</view>
-			<view class="cu-bar bg-white solid-bottom margin-top">
-				<view class="action">
-					<text class="cuIcon-title text-orange "></text> 列表左滑
-				</view>
-			</view>
+		
 			<!-- <view class="cu-list menu-avatar">
 				<view class="cu-item" :class="modalName=='move-box-'+ index?'move-cur':''" v-for="(item,index) in 4" :key="index"
 				 @touchstart="ListTouchStart" @touchmove="ListTouchMove" @touchend="ListTouchEnd" :data-target="'move-box-' + index">
@@ -61,7 +62,6 @@
 <script>
 	export default {
 		data() {
-
 			return {
 				src: 'https://upload.jianshu.io/users/upload_avatars/6347713/dacc8e24-9379-48dc-80c5-5529b37b3ad0.jpg?imageMogr2/auto-orient/strip|imageView2/1/w/96/h/96',
 				iconList: [{
@@ -131,7 +131,7 @@
 			console.log("gogogo");
 			var that = this;
 			uni.request({
-				url: 'http://192.168.0.109:8111/user/list',
+				url: that.base+'/user/list',
 				// header: JSON.stringify(),
 				data: {
 					token: uni.getStorageSync('token'),
@@ -148,8 +148,18 @@
 				this.modalName = e.currentTarget.dataset.target
 			},
 			detail(e) {
+				var img=encodeURIComponent(e.userName);
 				uni.navigateTo({
-					url: 'im-chat?uid='+e.id,
+					url: 'im-chat?uid=' + e.id+'&img='+img,
+					success: res => {},
+					fail: () => {},
+					complete: () => {}
+				});
+			},
+			exit() {
+				uni.removeStorageSync('token');
+				uni.navigateTo({
+					url: '../login/login/login',
 					success: res => {},
 					fail: () => {},
 					complete: () => {}
@@ -158,7 +168,8 @@
 			getInfo(e) {
 				var that = this;
 				uni.request({
-					url: 'http://192.168.0.109:8111/user/list',
+					// url: 'http://192.168.0.109:8111/user/list',
+					url:that.base +'/user/list',
 					// header: JSON.stringify(),
 					header: {
 						token: "sssssssssssssss"

@@ -1,0 +1,3 @@
+<import src="/components/messageshow.vue.wxml" />
+<import src="/components/chatinput.vue.wxml" />
+
